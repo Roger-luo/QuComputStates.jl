@@ -1,11 +1,11 @@
 module QuComputStates
 
-import QuBase: AbstractQuVector,AbstractFiniteBasis
+import QuBase: AbstractQuVector,AbstractFiniteBasis,FiniteBasis,Orthonormal
 import Base.copy
 export ComputState, stlzState
 
 # general computing basis
-typealias ComputBasis QuBase.FiniteBasis{QuBase.Orthonormal}
+typealias ComputBasis FiniteBasis{Orthonormal}
 comput_basis(n::Int) = FiniteBasis(ntuple(x->2,n))
 
 type ComputState{A<:AbstractVector,B<:AbstractFiniteBasis,T,N} <: AbstractQuVector{B,T}
@@ -14,7 +14,7 @@ type ComputState{A<:AbstractVector,B<:AbstractFiniteBasis,T,N} <: AbstractQuVect
 end
 
 # constructors
-ComputState{A::AbstractVector}(state_vec::A) = ComputState{A,ComputBasis,eltype(A),length(state_vec)|>log2}(state_vec,state_vec|>length|>comput_basis)
+ComputState{A::AbstractVector}(state_vec::A) = ComputState{A,ComputBasis,Float64,log2(length(state_vec))}(state_vec,state_vec|>length|>comput_basis)
 
 # QuBase functions overload
 coeffstype{A<:AbstractVector,B<:AbstractFiniteBasis}(state::ComputState{A,B}) = A
