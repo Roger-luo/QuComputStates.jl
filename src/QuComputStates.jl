@@ -1,8 +1,8 @@
 module QuComputStates
 
-import QuBase: AbstractQuVector,AbstractFiniteBasis,FiniteBasis,Orthonormal
+import QuBase: AbstractQuVector,AbstractFiniteBasis,FiniteBasis,Orthonormal,rawcoeffs,coefftype,rawbases,show
 import Base.copy
-export ComputState, stlzState
+export ComputState, stlzState, rawcoeffs, rawbases
 
 # general computing basis
 typealias ComputBasis FiniteBasis{Orthonormal}
@@ -14,10 +14,10 @@ type ComputState{A<:AbstractVector,B<:AbstractFiniteBasis,T,N} <: AbstractQuVect
 end
 
 # constructors
-ComputState{A::AbstractVector}(state_vec::A) = ComputState{A,ComputBasis,Float64,log2(length(state_vec))}(state_vec,state_vec|>length|>comput_basis)
+ComputState{A<:AbstractVector}(state_vec::A) = ComputState{A,ComputBasis,eltype(A),length(state_vec)|>log2|>Int}(state_vec,state_vec|>length|>comput_basis)
 
 # QuBase functions overload
-coeffstype{A<:AbstractVector,B<:AbstractFiniteBasis}(state::ComputState{A,B}) = A
+coefftype{A,B,T,N}(state::ComputState{A,B,T,N}) = A
 rawcoeffs(state::ComputState) = state.coeffs
 rawbases(state::ComputState) = state.bases
 
@@ -54,6 +54,5 @@ function copy!(A::stlzState,B::stlzState)
 
     return A
 end
-
 
 end # module
