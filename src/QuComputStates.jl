@@ -5,34 +5,13 @@ import Base: copy
 export ComputState, CHPState, rawcoeffs, rawbases, AbstractQC, AbstractQuCircuit, ComputBasis, comput_basis, bases, BellState
 
 abstract AbstractQC{N}
+abstract AbstractQuState{T,N}
 abstract AbstractQuCircuit{N} <: AbstractQC{N}
 
-# general computing basis
-typealias ComputBasis FiniteBasis{Orthonormal}
-comput_basis(n::Int) = FiniteBasis(ntuple(x->2,n))
-
-type ComputState{A<:AbstractVector,B<:AbstractFiniteBasis,T,N} <: AbstractQuVector{B,T}
-    coeffs::A
-    bases::B
-end
-
-# constructors
-ComputState{A<:AbstractVector,B<:AbstractFiniteBasis}(state_vec::A,bases::B) = ComputState{A,B,eltype(A),length(state_vec)|>log2|>Int}(state_vec,bases)
-ComputState{A<:AbstractVector}(state_vec::A) = ComputState{A,ComputBasis,eltype(A),length(state_vec)|>log2|>Int}(state_vec,state_vec|>length|>comput_basis)
-
-# Hints
-BellState(n::Int) = ComputState(Complex128[1/sqrt(2^n) for i=1:2^n],comput_basis(n))
-
-# QuBase functions overload
-coefftype{A,B,T,N}(state::ComputState{A,B,T,N}) = A
-rawcoeffs(state::ComputState) = state.coeffs
-rawbases(state::ComputState) = state.bases
-rawbases(state::ComputState, i) = state.bases
-
-# Base functions overload
-copy(state::ComputState) = ComputState(copy(state.coeffs),copy(state.bases))
-similar_type{Q<:ComputState}(::Type{Q}) = ComputState
-
+include("computbasis.jl")
+include("computstate.jl")
+include("stlzstate.jl")
+include("graphstate.jl")
 
 # This file is for types in chp.c
 
@@ -62,7 +41,5 @@ function copy!(A::CHPState,B::CHPState)
 
     return A
 end
-
-# Graph States
 
 end # module
